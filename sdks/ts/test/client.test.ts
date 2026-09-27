@@ -447,6 +447,23 @@ describe('createStellarBillClient - error paths (non-2xx)', () => {
       body: undefined,
     });
   });
+  it('handles non-object JSON error body (e.g. string) by leaving error undefined', async () => {
+    const { fetch } = mockFetchOnce('"just a string"', { status: 400, contentType: 'application/json' });
+    const sdk = createStellarBillClient({ baseUrl: 'https://api.example.com', fetch });
+    const r = await sdk.listPlans();
+    expect(r.status).toBe(400);
+    expect(r.error).toBeUndefined();
+    expect(r.data).toBeUndefined();
+  });
+
+  it('handles null JSON error body by leaving error undefined', async () => {
+    const { fetch } = mockFetchOnce('null', { status: 400, contentType: 'application/json' });
+    const sdk = createStellarBillClient({ baseUrl: 'https://api.example.com', fetch });
+    const r = await sdk.listPlans();
+    expect(r.status).toBe(400);
+    expect(r.error).toBeUndefined();
+    expect(r.data).toBeUndefined();
+  });
 });
 
 describe('createStellarBillClient - warning path coverage', () => {
